@@ -1,0 +1,13 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+data = read.csv("weatherAUS.csv", header=TRUE)
+head(data)
+
+data[c("Location","MaxTemp")]
+```
