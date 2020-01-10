@@ -16,28 +16,53 @@ data$Evaporation
 data[,"Evaporation"]
 ```
 ```{r}
-ggplot(data,aes(x=data$Pressure9am,fill=factor(data$RainTomorrow))) + geom_density(alpha=0.5)+
+
+ggplot(data,aes(x=data$Pressure9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5,  position = "fill")+
+
 xlab(label = "Pressure at 9 am")+
 ylab(label = "Probability of rain next day")+
 theme_minimal()
-ggplot(data,aes(x=data$Pressure3pm,fill=factor(data$RainTomorrow))) + geom_density(alpha=0.5,  position = "stack")+
+ggplot(data,aes(x=data$Pressure3pm,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5,  position = "fill")+
 xlab(label = "Pressure at 3 pm")+
 ylab(label = "Probability of rain next day")+
 theme_minimal()
-ggplot(data,aes(x=data$Temp9am,fill=factor(data$RainTomorrow))) + geom_density(alpha=0.5,  position = "stack")+
+ggplot(data,aes(x=data$Temp9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5,  position = "fill")+
 xlab(label = "Temperature at 9 am")+
 ylab(label = "Probability of rain next day")+
 theme_minimal()
-ggplot(data,aes(x=data$Temp3pm,fill=factor(data$RainTomorrow))) + geom_density(alpha=0.5,  position = "stack")+
+ggplot(data,aes(x=data$Temp3pm,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5,  position = "fill")+
 xlab(label = "Temperature at 3 pm")+
 ylab(label = "Probability of rain next day")+
 theme_minimal()
-ggplot(data,aes(x=data$Humidity9am ,fill=factor(data$RainTomorrow))) + geom_density(alpha=0.5,  position = "stack")+
+ggplot(data,aes(x=data$Humidity9am ,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5,  position = "fill")+
 xlab(label = "Humidity at 9 am")+
 ylab(label = "Probability of rain next day")+
 theme_minimal()
-ggplot(data,aes(x=data$Humidity3pm ,fill=factor(data$RainTomorrow))) + geom_density(alpha=0.5,  position = "stack")+
+ggplot(data,aes(x=data$Humidity3pm ,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5,  position = "fill")+
 xlab(label = "Humidity at 3 pm")+
+ylab(label = "Probability of rain next day")+
+theme_minimal()
+ggplot(data,aes(x=data$WindGustSpeed ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5,  position = "fill")+
+xlab(label = "Wind speed")+
+ylab(label = "Probability of rain next day")+
+theme_minimal()
+ggplot(data,aes(x=data$Rainfall ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5,  position = "fill")+
+xlab(label = "Rainfall")+
+ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+ggplot(data,aes(x=data$Cloud9am ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5,  position = "fill")+
+xlab(label = "Clouds at 9 am")+
+ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+ggplot(data,aes(x=data$Cloud3pm ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5,  position = "fill")+
+xlab(label = "Clouds at 3 pm")+
+ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+ggplot(data,aes(x=data$Sunshine ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5,  position = "stack")+
+xlab(label = "Sunshine")+
 ylab(label = "Probability of rain next day")+
 theme_minimal()
 
