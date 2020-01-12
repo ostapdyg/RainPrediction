@@ -1,78 +1,168 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r}
 
 library(ggplot2)
 library(ggcorrplot)
+library(corrplot)
 ```
 
 ```{r}
 data = read.csv("weatherAUS.csv", header=TRUE)
 tail(data)
-data$Evaporation
-data[,"Evaporation"]
+data = na.omit(data)
+data$RainTodayNum = as.numeric(data$RainToday)-1
+data$RainTomorrowNum = as.numeric(data$RainTomorrow)-1
+
 ```
+
 ```{r}
 
-ggplot(data,aes(x=data$Pressure9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5,  position = "fill")+
-
+ggplot(data,aes(x=data$Pressure9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Pressure at 9 am")+
-ylab(label = "Probability of rain next day")+
+#ylab(label = "Probability of rain next day")+
 theme_minimal()
-ggplot(data,aes(x=data$Pressure3pm,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5,  position = "fill")+
+
+ggplot(data,aes(x=data$Pressure3pm,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Pressure at 3 pm")+
-ylab(label = "Probability of rain next day")+
+#ylab(label = "Probability of rain next day")+
 theme_minimal()
-ggplot(data,aes(x=data$Temp9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5,  position = "fill")+
+
+ggplot(data,aes(x=data$Pressure3pm-data$Pressure9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+xlab(label = "Change in pressure")+
+#ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+ggplot(data,aes(x=data$MaxTemp,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+xlab(label = "Maximal temperature")+
+#ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+ggplot(data,aes(x=data$MinTemp,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+xlab(label = "Minimal temperature")+
+#ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+ggplot(data,aes(x=data$MaxTemp-data$MinTemp,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+xlab(label = "Temperature range")+
+#ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+ggplot(data,aes(x=data$Temp9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Temperature at 9 am")+
-ylab(label = "Probability of rain next day")+
+#ylab(label = "Probability of rain next day")+
 theme_minimal()
-ggplot(data,aes(x=data$Temp3pm,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5,  position = "fill")+
+
+
+ggplot(data,aes(x=data$Temp3pm,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Temperature at 3 pm")+
-ylab(label = "Probability of rain next day")+
+#ylab(label = "Probability of rain next day")+
 theme_minimal()
-ggplot(data,aes(x=data$Humidity9am ,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5,  position = "fill")+
+
+
+ggplot(data,aes(x=data$Temp9am-data$Temp3pm,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+xlab(label = "Change in temperature")+
+#ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+
+ggplot(data,aes(x=data$Humidity9am ,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Humidity at 9 am")+
-ylab(label = "Probability of rain next day")+
+#(label = "Probability of rain next day")+
 theme_minimal()
-ggplot(data,aes(x=data$Humidity3pm ,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5,  position = "fill")+
+
+ggplot(data,aes(x=data$Humidity3pm ,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Humidity at 3 pm")+
-ylab(label = "Probability of rain next day")+
+#ylab(label = "Probability of rain next day")+
 theme_minimal()
-ggplot(data,aes(x=data$WindGustSpeed ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5,  position = "fill")+
+
+ggplot(data,aes(x=data$Humidity3pm-data$Humidity9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+xlab(label = "Change in humidity")+
+#ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+ggplot(data,aes(x=data$WindGustSpeed ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5)+
 xlab(label = "Wind speed")+
-ylab(label = "Probability of rain next day")+
-theme_minimal()
-ggplot(data,aes(x=data$Rainfall ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5,  position = "fill")+
-xlab(label = "Rainfall")+
-ylab(label = "Probability of rain next day")+
+#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$Cloud9am ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5,  position = "fill")+
+ggplot(data,aes(x=data$WindSpeed9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+xlab(label = "Wind speed at 9 am")+
+#ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+ggplot(data,aes(x=data$WindSpeed3pm,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+xlab(label = "Wind speed at 3 pm")+
+#ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+ggplot(data,aes(x=data$WindSpeed3pm-data$WindSpeed9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+xlab(label = "Change in wind speed")+
+#ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+ggplot(data,aes(x=data$Cloud9am ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5)+
 xlab(label = "Clouds at 9 am")+
-ylab(label = "Probability of rain next day")+
+#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$Cloud3pm ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5,  position = "fill")+
+ggplot(data,aes(x=data$Cloud3pm ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5)+
 xlab(label = "Clouds at 3 pm")+
-ylab(label = "Probability of rain next day")+
+#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$Sunshine ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5,  position = "stack")+
+ggplot(data,aes(x=data$Cloud3pm-data$Cloud9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+xlab(label = "Change in clouds")+
+#ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+
+ggplot(data,aes(x=data$Sunshine ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5)+
 xlab(label = "Sunshine")+
-ylab(label = "Probability of rain next day")+
+#ylab(label = "Probability of rain next day")+
+theme_minimal()
+
+ggplot(data,aes(x=data$RainTodayNum ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5)+
+xlab(label = "Rain today")+
+#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
 ```
 
 ```{r}
-tail(mtcars)
-mycars = mtcars[, c(1,3)]
-tail(mycars)
-#cor(data[c("Temp3pm", "Temp9am", "Humidity9am", "Humidity3pm")])
-ggcorrplot(corr=cor(data[, c(3,4,5,9,12,13,14,15,16,17,20,21)]))
-ggcorrplot(corr=cor(mtcars))
-````
+data$TempDiff = data$Temp3pm-data$Temp9am
+data$TempRange = data$MaxTemp-data$MinTemp
+data$PressureDiff = data$Pressure3pm-data$Pressure9am
+data$HumidityDiff = data$Humidity3pm-data$Humidity9am
+data$CloudDiff = data$Cloud3pm-data$Cloud9am
+
+numerical_data = data[, c("Pressure9am","Pressure3pm","PressureDiff",
+                         "MinTemp","MaxTemp","TempRange","Temp9am", "Temp3pm", "TempDiff",
+                         "Humidity9am","Humidity3pm","HumidityDiff",
+                         "WindGustSpeed",
+                         "Cloud9am","Cloud3pm",
+                         "RainTodayNum",
+                         "Sunshine")]
+
+
+ggcorrplot(corr=cor(numerical_data),hc.order = TRUE, method="square", lab = TRUE, lab_size = 2)
+
+```
+Choose more or less independent values
+```{r}
+final_data = data[, c("Pressure9am","PressureDiff",
+                      "TempRange","Temp9am",
+                      "Humidity9am","HumidityDiff",
+                      "WindGustSpeed",
+                      "RainTodayNum", "RainTomorrowNum")]
+
+ggcorrplot(corr=cor(final_data),hc.order = TRUE, method="square", lab = TRUE, lab_size = 2)
+
+
+
+```
