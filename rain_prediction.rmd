@@ -9,7 +9,7 @@ output:
 
 library(ggplot2)
 library(ggcorrplot)
-library(corrplot)
+library(caret)
 ```
 
 ```{r}
@@ -146,23 +146,70 @@ numerical_data = data[, c("Pressure9am","Pressure3pm","PressureDiff",
                          "Humidity9am","Humidity3pm","HumidityDiff",
                          "WindGustSpeed",
                          "Cloud9am","Cloud3pm",
-                         "RainTodayNum",
+                         "RainTodayNum","RainTomorrowNum",
                          "Sunshine")]
 
 
 ggcorrplot(corr=cor(numerical_data),hc.order = TRUE, method="square", lab = TRUE, lab_size = 2)
 
 ```
-Choose more or less independent values
+Choose values corelated with RainTomorrow
 ```{r}
-final_data = data[, c("Pressure9am","PressureDiff",
-                      "TempRange","Temp9am",
-                      "Humidity9am","HumidityDiff",
-                      "WindGustSpeed",
-                      "RainTodayNum", "RainTomorrowNum")]
 
-ggcorrplot(corr=cor(final_data),hc.order = TRUE, method="square", lab = TRUE, lab_size = 2)
+useful_data = data[, c("Pressure9am","Pressure3pm",
+                         "TempRange","TempDiff",
+                         "Humidity9am","Humidity3pm","HumidityDiff",
+                         "WindGustSpeed",
+                         "Cloud9am","Cloud3pm",
+                         "RainTodayNum","RainTomorrowNum",
+                         "Sunshine")]
+
+ggcorrplot(corr=cor(useful_data),hc.order = TRUE, method="square", lab = TRUE, lab_size = 2)
 
 
+
+```
+Choose more or less bitwise incorrelated values
+```{r}
+independent_data = data[,c("Pressure3pm",
+                           "TempDiff","Temp3pm",
+                           "Humidity3pm",
+                           "WindGustSpeed",
+                           "RainTodayNum","RainTomorrowNum",
+                           "Sunshine"
+                           )]
+ggcorrplot(corr=cor(independent_data),hc.order = TRUE, method="square", lab = TRUE, lab_size = 3)
+
+```
+
+Divide data into training and testing datasets
+```{r}
+set.seed(2901384)
+training_index = sample(nrow(independent_data), nrow(independent_data)/2, replace=FALSE)
+training_data = independent_data[training_index, ]
+test_data = independent_data[-training_index, ]
+nrow(training_data)
+nrow(test_data)
+```
+
+
+```{r}
+model = glm(training_data$RainTomorrowNum~.,
+#              training_data$Humidity3pm+
+#              training_data$Temp3pm+
+ #             training_data$RainTodayNum+
+  #            training_data$WindGustSpeed+
+   #           training_data$Sunshine+
+    #          training_data$TempDiff,
+            family=binomial(link="logit"), data = training_data)
+
+```
+
+```{r}
+prediction = predict.glm(model, newdata = test_data, type = 'response')
+prediction = ifelse(prediction > 0.5 , 1 ,0)
+result = data.frame(prediction)
+result$prediction = as.factor(result$prediction)
+confusionMatrix(result$prediction, as.factor(test_data$RainTomorrowNum))
 
 ```
