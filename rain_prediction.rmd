@@ -4,143 +4,135 @@ output:
   html_document:
     df_print: paged
 ---
+## Introduction
+Considering the forest fires currently ravaging in Australia, we decided to analyze the continent's weather data and draw conclusions from it, relevant to the phenomena, mainly by predicting rain. The Rain In Australia dataset from Kaggle(https://www.kaggle.com/jsphyg/weather-dataset-rattle-package) was used for this research.
+
 
 ```{r}
 
 library(ggplot2)
 library(ggcorrplot)
 library(caret)
+library(pROC)
 ```
 
+
 ```{r}
+#Preparing data
 data = read.csv("weatherAUS.csv", header=TRUE)
 tail(data)
-data = na.omit(data)
+
+#Represent "Yes"/"No" values as numerical data
 data$RainTodayNum = as.numeric(data$RainToday)-1
 data$RainTomorrowNum = as.numeric(data$RainTomorrow)-1
 
 ```
-
+### Data visualization
+Plot the data density functions conditioned on the ```RainTomorrow``` variable
 ```{r}
-
-ggplot(data,aes(x=data$Pressure9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$Pressure9am,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Pressure at 9 am")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$Pressure3pm,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$Pressure3pm,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Pressure at 3 pm")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$Pressure3pm-data$Pressure9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$Pressure3pm-data$Pressure9am,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Change in pressure")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$MaxTemp,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$MaxTemp,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Maximal temperature")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$MinTemp,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$MinTemp,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Minimal temperature")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$MaxTemp-data$MinTemp,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$MaxTemp-data$MinTemp,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Temperature range")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$Temp9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$Temp9am,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Temperature at 9 am")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
 
-ggplot(data,aes(x=data$Temp3pm,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$Temp3pm,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Temperature at 3 pm")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
 
-ggplot(data,aes(x=data$Temp9am-data$Temp3pm,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$Temp3pm-data$Temp9am,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Change in temperature")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
 
-ggplot(data,aes(x=data$Humidity9am ,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$Humidity9am ,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Humidity at 9 am")+
-#(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$Humidity3pm ,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$Humidity3pm ,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Humidity at 3 pm")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$Humidity3pm-data$Humidity9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$Humidity3pm-data$Humidity9am,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Change in humidity")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$WindGustSpeed ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$WindGustSpeed ,fill=data$RainTomorrow, stat="density")) + geom_density(alpha=0.5)+
 xlab(label = "Wind speed")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$WindSpeed9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$WindSpeed9am,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Wind speed at 9 am")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$WindSpeed3pm,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$WindSpeed3pm,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Wind speed at 3 pm")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$WindSpeed3pm-data$WindSpeed9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$WindSpeed3pm-data$WindSpeed9am,fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Change in wind speed")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$Cloud9am ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$Cloud9am ,fill=data$RainTomorrow, stat="density")) + geom_density(alpha=0.5)+
 xlab(label = "Clouds at 9 am")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$Cloud3pm ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$Cloud3pm, fill=data$RainTomorrow, stat="density")) + geom_density(alpha=0.5)+
 xlab(label = "Clouds at 3 pm")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$Cloud3pm-data$Cloud9am,fill=factor(data$RainTomorrow), stat="count")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$Cloud3pm-data$Cloud9am, fill=data$RainTomorrow, stat="count")) + geom_density(alpha=0.5)+
 xlab(label = "Change in clouds")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
 
-ggplot(data,aes(x=data$Sunshine ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$Sunshine, fill=data$RainTomorrow, stat="density")) + geom_density(alpha=0.5)+
 xlab(label = "Sunshine")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
-ggplot(data,aes(x=data$RainTodayNum ,fill=factor(data$RainTomorrow), stat="density")) + geom_density(alpha=0.5)+
+ggplot(data,aes(x=data$RainTodayNum, fill=data$RainTomorrow, stat="density")) + geom_density(alpha=0.5)+
 xlab(label = "Rain today")+
-#ylab(label = "Probability of rain next day")+
 theme_minimal()
 
 ```
+From the plots above, distributions of ```WindSpeed9am```, ```WindSpeed3pm``` and ```WindSpeedChange``` do not change considerably depending on ```RainTomorrow```, therefore they can be discarded
 
+
+### Corelation analysis
+Changes throughout the day of some parameters seem to depend on ```RainTomorrow```, so we introduce them as new variables in the dataset.
 ```{r}
 data$TempDiff = data$Temp3pm-data$Temp9am
 data$TempRange = data$MaxTemp-data$MinTemp
 data$PressureDiff = data$Pressure3pm-data$Pressure9am
 data$HumidityDiff = data$Humidity3pm-data$Humidity9am
 data$CloudDiff = data$Cloud3pm-data$Cloud9am
-
+```
+Plot the correlation matrix for the parameters we are interested in.
+```{r}
 numerical_data = data[, c("Pressure9am","Pressure3pm","PressureDiff",
                          "MinTemp","MaxTemp","TempRange","Temp9am", "Temp3pm", "TempDiff",
                          "Humidity9am","Humidity3pm","HumidityDiff",
@@ -148,68 +140,59 @@ numerical_data = data[, c("Pressure9am","Pressure3pm","PressureDiff",
                          "Cloud9am","Cloud3pm",
                          "RainTodayNum","RainTomorrowNum",
                          "Sunshine")]
-
+numerical_data = na.omit(numerical_data)
 
 ggcorrplot(corr=cor(numerical_data),hc.order = TRUE, method="square", lab = TRUE, lab_size = 2)
 
 ```
-Choose values corelated with RainTomorrow
+We choose only values which have absolute value of correlation with ```RainTomorrow``` larger than $0.2$
 ```{r}
 
-useful_data = data[, c("Pressure9am","Pressure3pm",
+correlated_data = data[, c("Pressure9am","Pressure3pm",
                          "TempRange","TempDiff",
-                         "Humidity9am","Humidity3pm","HumidityDiff",
+                         "Humidity9am","Humidity3pm",
                          "WindGustSpeed",
                          "Cloud9am","Cloud3pm",
                          "RainTodayNum","RainTomorrowNum",
                          "Sunshine")]
+correlated_data = na.omit(correlated_data)
 
-ggcorrplot(corr=cor(useful_data),hc.order = TRUE, method="square", lab = TRUE, lab_size = 2)
+ggcorrplot(corr=cor(correlated_data),hc.order = TRUE, method="square", lab = TRUE, lab_size = 2)
 
 
-
-```
-Choose more or less bitwise incorrelated values
-```{r}
-independent_data = data[,c("Pressure3pm",
-                           "TempDiff","Temp3pm",
-                           "Humidity3pm",
-                           "WindGustSpeed",
-                           "RainTodayNum","RainTomorrowNum",
-                           "Sunshine"
-                           )]
-ggcorrplot(corr=cor(independent_data),hc.order = TRUE, method="square", lab = TRUE, lab_size = 3)
 
 ```
+### Model preparation
 
-Divide data into training and testing datasets
+Divide data into training and testing datasets of equal sizes
 ```{r}
-set.seed(2901384)
-training_index = sample(nrow(independent_data), nrow(independent_data)/2, replace=FALSE)
-training_data = independent_data[training_index, ]
-test_data = independent_data[-training_index, ]
+set.seed(29)
+training_indices = sample(nrow(correlated_data), nrow(correlated_data)/2, replace=FALSE)
+training_data = correlated_data[training_indices, ]
+test_data = correlated_data[-training_indices, ]
 nrow(training_data)
 nrow(test_data)
 ```
 
-
+As we try to predict ```RainTomorrow``` which is a categorical, the logistic regression is used 
 ```{r}
 model = glm(training_data$RainTomorrowNum~.,
-#              training_data$Humidity3pm+
-#              training_data$Temp3pm+
- #             training_data$RainTodayNum+
-  #            training_data$WindGustSpeed+
-   #           training_data$Sunshine+
-    #          training_data$TempDiff,
             family=binomial(link="logit"), data = training_data)
-
+summary(model)
 ```
+From the p-values displayed, ```Pressure9am```, ```Pressure3pm```, ```Humidity3pm```, ```WindGustSpeed```, ```Cloud3pm```, ```RainTodayNum``` and ```Sunshine``` are the most significant ones for rain prediction.
 
+## Testing the model
+We use the model to predict ```RainTomorrow``` on the test data, with predicted values that are larger then the threshold of $0.5$ being interpreted as prediction that there will be rain tomorrow. Then, the confusion matrix is ploted to assess the model`s quality. 
 ```{r}
 prediction = predict.glm(model, newdata = test_data, type = 'response')
-prediction = ifelse(prediction > 0.5 , 1 ,0)
-result = data.frame(prediction)
-result$prediction = as.factor(result$prediction)
-confusionMatrix(result$prediction, as.factor(test_data$RainTomorrowNum))
-
+result = data.frame(prediction = ifelse(prediction > 0.9 , 1 ,0))
+result$prediction = factor(result$prediction)
+confusionMatrix(result$prediction, factor(test_data$RainTomorrowNum), positive='1')
 ```
+The model was true $85.43\%$ of the time, which is higher than ```No Information Rate```(accuracy of always choosing more frequent value), meaning that the model actually makes valuable predictions.
+This is further validated by extremely low P-values and ```Kappa```($\frac{p_{model}-p_{morefreq}}{1-p_{morefreq}}$) of $0.5343$.
+
+The accuracy of negative predictions is $88\%$, meaning that it is pretty safe not to take your umbrella if the model says there will not be rain; it can be increased even more by decreasing the threshold. For example, on the threshold of $0.15$ the confidence level for negative predictions reaches $95.3\%$.
+
+The accuracy of positive predictions is $72.4\%$, meaning that you probably should take your umbrella if the model says there will be rain; it can be increased even more by decreasing the threshold. For example, on the threshold of $0.9$ the confidence level for positive predictions reaches $95.1\%$.
